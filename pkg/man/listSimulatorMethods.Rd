@@ -23,7 +23,7 @@
 \seealso{See Also as \code{\link{createSettings}}.}
 \examples{
     \dontrun{
-        wsdl = "http://calibayes2.ncl.ac.uk:81/CalibayesServices1.wsdl"
+        wsdl = "http://calibayes1.ncl.ac.uk:81/CaliBayesService_v2.wsdl"
         listSimulatorMethods(wsdl)
     }
 

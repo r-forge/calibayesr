@@ -30,7 +30,7 @@
 \seealso{See Also as \code{\link{isCaliBayesReady}}.}
 \examples{
     \dontrun{
-        wsdl = "http://calibayes2.ncl.ac.uk:81/CalibayesServices1.wsdl"
+        wsdl = "http://calibayes1.ncl.ac.uk:81/CaliBayesService_v2.wsdl"
         sid = "valid_id"
         maxtime = 10 # 10*60 seconds
         no_of_checks = 6 # Check calibayes every 100 seconds, i.e. every (60*10)/6 seconds

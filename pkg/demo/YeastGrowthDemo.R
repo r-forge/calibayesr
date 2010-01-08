@@ -5,7 +5,7 @@ library(SBMLModels)
 data(LogisticModel)
 
 #Create settings file
-wsdl = "http://calibayes4.ncl.ac.uk:8080/CaliBayesService_v2.wsdl"
+wsdl = "http://calibayes1.ncl.ac.uk:81/CaliBayesService_v2.wsdl"
 settings = createSettings(wsdl, burn=10000, thin=2)
 
 #Just use the first experiment
@@ -35,6 +35,8 @@ parameters = data.frame(K=rlnorm(n,9,0.2), r=rlnorm(n,1,0.6))
 prior = createCalibayes(parameters, species, distributions, errors, yeast_data)
 
 sid = calibrate(wsdl, LogisticModel, settings, prior, asText=TRUE)
+
+cat("Check calibayes every thirty seconds\n")
 isCaliBayesFinished(wsdl, sid, 20 , 10)
 
 

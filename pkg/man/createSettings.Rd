@@ -40,7 +40,7 @@ saveSettings(filename, settings)
 \seealso{See also \code{\link{calibrate}} and \code{\link{createCalibayes}}.}
 
 \examples{
-    wsdl = "http://calibayes2.ncl.ac.uk:81/CalibayesServices1.wsdl"
+    wsdl = "http://calibayes1.ncl.ac.uk:81/CaliBayesService_v2.wsdl"
     settings = createSettings(wsdl, burn=100, thin=10)
     
     \dontrun{
