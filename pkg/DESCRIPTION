@@ -1,10 +1,11 @@
 Package: calibayesR
 Type: Package
 Title: CaliBayes: Parameter estimation for stochastic kinetic models
-Version: 0.1-6
-Date: 2010-12-08
+Version: 0.1-7
+Date: 2010-02-1
 Author: Colin Gillespie
 Maintainer: Colin Gillespie <c.gillespie@ncl.ac.uk>
 Description: The CaliBayes project is concerned with the problem of estimating the kinetic parameters of dynamic biological simulation models (either deterministic or stochastic) encoded in SBML, by using time course experimental data. This package provides tools to generate the calibayes XML file format. The package also provides a web-serivce interface to the CaliBayes system. See http://www.calibayes.ncl.ac.uk for more details.
 License: LGPL-3
-Depends: R (>= 2.9.0), XML, RCurl, SSOAP, XMLSchema, basisR
+Depends: R (>= 2.9.0), XML
+Imports: RCurl (>= 1.2-1), SSOAP(>= 0.5-2) , XMLSchema(>= 0.1-2), basisR, XML
