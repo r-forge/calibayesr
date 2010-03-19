@@ -4,9 +4,9 @@
 \alias{createCalibayes}
 \alias{saveCalibayes}
 \alias{loadCalibayes}
-\alias{mean.calibayes}
-\alias{summary.calibayes}
-\alias{plot.calibayes}
+\alias{mean.CaliBayes}
+\alias{summary.CaliBayes}
+\alias{plot.CaliBayes}
 \alias{compareDistributions}
 
 
