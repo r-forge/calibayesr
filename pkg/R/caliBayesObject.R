@@ -12,26 +12,26 @@ createCalibayesObject = function(iters, par_df, sp_df, dist, err_df, exp_df)
     y$errors = err_df
     y$dist = dist
     y$experiments = exp_df
-    class(y) = "calibayes"
+    class(y) = "CaliBayes"
     return(y)
 }
  
     
-mean.calibayes = function(x,...)
+mean.CaliBayes = function(x,...)
 {
     x = cbind(x$parameters,  x$species, x$errors)
     mean(x)
     
 }
 
-summary.calibayes = function(object,...)
+summary.CaliBayes = function(object,...)
 {
     object = cbind(object$parameters, object$species, object$errors)
     summary(object)
 }
 
 
-plot.calibayes = function(x, lm=400, rows=4, burnin=1, thin=1, ...)
+plot.CaliBayes = function(x, lm=400, rows=4, burnin=1, thin=1, ...)
 {	
     d = cbind(x$parameters, x$species, x$errors)
     names = attr(d, "names")

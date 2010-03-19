@@ -69,7 +69,7 @@ getNodeRefs = function(node_refs, sbmlNodes, IDs2change)
 getPredictiveDistribution = function(sbml, max_time, iters, no_of_sims, prior, posterior, asText=FALSE)
 {
     
-    sbmlModel = xmlInternalTreeParse(sbml,asText=asText)
+    sbmlModel = xmlInternalTreeParse(sbml, asText=asText)
     
     
     sbml = xmlChildren(sbmlModel)$sbml
@@ -110,7 +110,7 @@ getPredictiveDistribution = function(sbml, max_time, iters, no_of_sims, prior, p
     results$indxs = indxs
     results$isReady = vector(length=length(indxs))
     
-    class(results) = "calibayesPredictive"
+    class(results) = "CaliBayesPredictive"
     return(results)
 }
 
