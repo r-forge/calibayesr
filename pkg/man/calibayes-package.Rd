@@ -60,6 +60,11 @@ Maintainer: Colin Gillespie <c.gillespie@ncl.ac.uk>
 \keyword{package}
 \keyword{distribution}
 
-\seealso{\code{\link{createCalibayes}}, \code{link{calibrate}}}
+\seealso{
+\code{\link{createCaliBayesSettings}}, 
+\code{\link{createCaliBayesExperiment}},
+\code{\link{createCaliBayesDistribution}},
+\code{\link{calibrate}}
+}
 
 

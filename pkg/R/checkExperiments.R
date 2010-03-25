@@ -5,7 +5,10 @@ checkExperiments = function(experiments, species)
 {
     
     checkExperimentHeaders(experiments)
-    checkExperimentSpecies(experiments, species)
+    if(!is.logical(species))
+        checkExperimentSpecies(experiments, species)
+    else
+        message("Skipping check 2. Need species argument")
     checkExperimentTime(experiments)
     return(TRUE)
 }

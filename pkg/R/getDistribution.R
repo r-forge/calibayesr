@@ -31,7 +31,7 @@ getDistribution = function(xmlData, asText=TRUE)
 
     iterations = environment(s1$Iteration)$iterations
     errors = environment(s1$Error)$errors
-    
+
     if(length(pa_ids))
     {
         l = length(pa_values)/length(pa_ids)
@@ -58,7 +58,7 @@ getDistribution = function(xmlData, asText=TRUE)
         sp_df = data.frame()
         err_df = data.frame()
     }
-    y = createCalibayesObject(iterations, par_df, sp_df, dist, err_df, NULL)
+    y = pri_createCaliBayesDistribution(iterations, par_df, sp_df, dist, err_df)
     return(y)
 }
 
@@ -66,29 +66,31 @@ getSpecies = function(name, attrs, ...){
 
     id = attrs["id"]
     if(!is.na(id))
-        assign("sp_ids", append(sp_ids, id), envir = cali)
+        cali[["sp_ids"]] = append(cali[["sp_ids"]], id)
         
     value = attrs["value"]
     if(!is.na(value))
-        assign("sp_values", append(sp_values, as.double(value)), envir = cali)
+        cali[["sp_values"]] = append(cali[["sp_values"]], as.double(value))
 
 }
 
 getParameters = function(name, attrs, ...){
     id = attrs["id"]
     if(!is.na(id))
-        assign("pa_ids", append(pa_ids, id), envir = cali)
+        cali[["pa_ids"]] = append(cali[["pa_ids"]], id)
         
     value = attrs["value"]
     if(!is.na(value))
-        assign("pa_values", append(pa_values, as.double(value)), envir = cali)
+        cali[["pa_values"]] = append(cali[["pa_values"]], as.double(value))
+
 }
 
 
 getIterations = function(name, attrs, ...){
     iteration = attrs["number"]
     if(!is.na(iteration))
-        assign("iterations", append(iterations, as.integer(iteration)), envir = cali)
+        cali[["iterations"]] = append(cali[["iterations"]], as.double(iteration))
+#        assign("iterations", append(iterations, as.integer(iteration)), envir = cali)
 }
 
 
@@ -96,8 +98,8 @@ getErrors = function(name, attrs, ...)
 {
     error = attrs["value"]
     if(!is.na(error))
-        assign("errors", append(errors, as.double(error)), envir = cali)
-    
+        cali[["errors"]] = append(cali[["errors"]], as.double(error))
+
 }
 
 

@@ -70,25 +70,42 @@ pri_getUpdate = function(from)
 #Public methods
 ########################################################
 
-calibrate = function(wsdl, sbml, settings, calibayes, asText=FALSE) 
+calibrate = function(wsdl, sbml, CaliBayes.Settings, CaliBayes.Experiment, CaliBayes.Distribution, asText=FALSE) 
 {
+    
+    
     if(!asText)
         sbml = toString.XMLNode(xmlInternalTreeParse(sbml))
     
     #Remove the XML heading
     sbml = strsplit(sbml,'\\?>')[[1]][[2]]
     
+    message("Making SOAP interface...")
     cali.def = getCaliDef(wsdl, FALSE)
+    message("Finished SOAP interface\n\n")
     
-    expDataXml = makeExperiments(FALSE, calibayes$experiments, calibayes$species, FALSE)
-    distributionXml  = makeDistribution(FALSE, calibayes$parameters, calibayes$species, calibayes$dist, calibayes$errors, FALSE)
-    tuningXml = makeSettings(FALSE, settings$burn, settings$thin, settings$block, settings$simulator, settings$wsdl, FALSE)
+    message("Making Settings XML...")
+    settings = CaliBayes.Settings
+    tuningXML = makeSettings(FALSE, settings$burn, settings$thin, settings$block, settings$simulator, settings$wsdl, FALSE)
+
+    message("Making Experiment XML...")
+    expDataXML = makeExperiments(FALSE, CaliBayes.Experiment)    
+
+    message("Making Distribution XML...")
+    distributionXML  = makeDistribution(FALSE, 
+                                        CaliBayes.Distribution$parameters, 
+                                        CaliBayes.Distribution$species, 
+                                        CaliBayes.Distribution$dist, 
+                                        CaliBayes.Distribution$errors, 
+                                        FALSE)
     
     
-    req = paste("<doc>", sbml, expDataXml, tuningXml, distributionXml, "</doc>", sep="")
+    req = paste("<doc>", sbml, expDataXML, tuningXML, distributionXML, "</doc>", sep="")
     req = gsub('\n','',req)
     
     setAs("character", "rSubmit", RSubmit,  where=globalenv())
+    message("Sending SOAP message to CaliBayes...")
+
     rst = cali.def@functions$rSubmit(req)
     return(rst@sessionId)
 }
@@ -124,7 +141,9 @@ getPosterior = function(wsdl, sid)
     }
     cali.def = getCaliDef(wsdl, FALSE)   
     setAs("character", "getResult", getResult,  where=globalenv())
+    message("Sending request to CaliBayes...")
     rst = cali.def@functions$getResult(sid)
+    message("Converting to CaliBayes Objects...")
     xmlString = rst@result
     result = getDistribution(xmlString)
     

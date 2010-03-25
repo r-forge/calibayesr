@@ -1,7 +1,8 @@
 export(listSimulatorMethods,getPosterior,isCaliBayesReady,calibrate, isCaliBayesFinished,
-    createCalibayes, saveCalibayes, loadCalibayes,  
-    createSettings, saveSettings, 
-    mean.CaliBayes, summary.CaliBayes, plot.CaliBayes, compareDistributions,
+    createCaliBayesExperiment, saveCaliBayesExperiment,
+    createCaliBayesDistribution, saveCaliBayesDistribution, loadCaliBayesDistribution,
+    createCaliBayesSettings, saveCaliBayesSettings, 
+    mean.CaliBayes.Distribution, summary.CaliBayes.Distribution, plot.CaliBayes.Distribution, compareDistributions,
     getPredictiveDistribution,updatePredictiveResults)
 
 #getUpdate,

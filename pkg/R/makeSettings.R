@@ -1,12 +1,12 @@
 #$Date$
 #$Author$
-makeSettings = function(filename=FALSE, 
+makeSettings1 = function(filename=FALSE, 
                         burn=500, 
                         thin=50, 
                         block=1, 
                         simulator="copasi-stochastic",
                         wsdl="internal",
-                        check=TRUE)
+                        check=FALSE)
 {
 
     if(check)
@@ -32,6 +32,30 @@ makeSettings = function(filename=FALSE,
 ############################################
 #Example usage
 ############################################
+#makeSettings(FALSE, burn=100, thin=10, block = 3)
+makeSettings = function(filename=FALSE, 
+                        burn=500, 
+                        thin=50, 
+                        block=1, 
+                        simulator="copasi-stochastic",
+                        wsdl="internal",
+                        check=FALSE)
+{
 
+    if(check)
+        check = checkSettings(burn, thin, block)
 
-#makeParameterTuning('/tmp/tuning.xml', iters=100000, burn=100, thin=10, block = 3)
+    df = data.frame(nodes = c("burn","thin", "block", "simulationMethod","simulatorWSDLLocation"))
+    df$values = c(burn, thin, block, simulator, wsdl)
+    
+    rt_values = paste("<", df$nodes, " value='", df$values, "'/>", sep="", collapse="")
+    rt_values = addXMLTag(rt_values, "parameterTuning")
+
+    if(is.character(filename)){
+        write(rt_values, filename)
+        rt_values = TRUE
+    }
+
+    return(rt_values)
+}
+    

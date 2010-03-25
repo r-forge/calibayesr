@@ -1,8 +1,7 @@
 #$Date$
 #$Author$
 
-
-makeDistribution = function(filename=FALSE, parameters, species, distributions, errors, check=TRUE)
+makeDistribution = function(filename=FALSE, parameters, species, distributions, errors, check=FALSE)
 {
     #Only parameters are optional
     #Next few lines are over kill, but can be easily expanded.
@@ -11,48 +10,92 @@ makeDistribution = function(filename=FALSE, parameters, species, distributions, 
     mf = mf[c(1L, m)]
     if(!is.element("parameters",names(mf)))
         parameters = FALSE
+
+#    if(!is.element("species",names(mf)))
+#        species = FALSE
     
     if(check)
         checkDistribution(parameters, species, distributions, errors)
     
-    top=newXMLNode("Distribution")
-    var=newXMLNode("ListOfVariables",parent=top)
-    seq=newXMLNode("sequence",parent=var)
-    
+    message("\tAdding in the ListOfVariables...")
+    n = dim(species)[1]
     if(is.data.frame(parameters))
     {
         df_pars = fixParameters(parameters)
-        pars = as.character(unique(df_pars$id))
-        lapply(pars, makeDistributionParameters, seq)
-    }
+        xml_str_vars = makeParametersAtListOfVariables(parameters)
+        iter_pars = tapply(df_pars$value, df_pars$iters, pastePars)
 
-    df_sp = fixSpecies(species)
-    apply(data.frame(colnames(species), distributions, c(species[1,],recursive=T)),  1, makeDistributionSpecies, seq)
-    n = dim(species)[1]
-    df_er = fixErrors(errors)
-    
-    lOfIters=newXMLNode("ListOfIterations",parent=top)
-    listofnodes = c()
-    for(i in 1:n){
-        node=newXMLNode("Iteration",attrs=c(number=as.numeric(i)),parent=lOfIters)
-        seq1=newXMLNode("sequence",parent=node)
-        listofnodes = c(listofnodes, seq1)
+    } else {#Create an empty strings for below.
+        xml_str_vars = ""
+        iter_pars = rep("", n)
     }
-    
-    if(is.data.frame(parameters))
-        apply(df_pars, 1, makeparamnode, listofnodes)
- 
-    apply(df_sp, 1, makespecnode,listofnodes, df_er)
+        
+    xml_str_vars = paste(xml_str_vars,makeSpeciesAtListOfVariables(species, distributions))
+    xml_str_vars = addXMLTag(xml_str_vars, "sequence")
+    xml_str_vars = addXMLTag(xml_str_vars, "ListOfVariables")
+
+    message("\tAdding in the ListOfIterations...may take a while")
+
+    #Now create ListOfIterations
+    df_sp = fixSpecies(species)    
+    iter_sps = tapply(df_sp$value, paste(df_sp$iters, df_sp$id), pasteSpecies)
+
+    df_er = fixErrors(errors)
+    iter_errs = tapply(paste("<Error value='", df_er$value, "'/>", sep=""), paste(df_er$iters,df_er$species) , paste, collapse="")
+
+    xml_str_iters = paste(iter_sps,"<sequence>", iter_errs, "</sequence></Species>", sep="")
+
+    xml_str_iters[df_sp$id==df_sp$id[1]] = paste("<Iteration number='",seq(1, n), "'><sequence>", iter_pars, xml_str_iters[df_sp$id==df_sp$id[1]], sep="")
+    xml_str_iters[df_sp$id==df_sp$id[length(df_sp$id)]] = paste(xml_str_iters[df_sp$id==df_sp$id[length(df_sp$id)]], "</sequence></Iteration>", sep="")
+    xml_str_iters = paste(xml_str_iters, collapse="")
+    xml_str_iters = addXMLTag(xml_str_iters, "ListOfIterations")
+
+
+    #Combine Iterations and variables
+    xml_str = paste(xml_str_vars, xml_str_iters, sep="")
+    rt_values = addXMLTag(xml_str, "Distribution")
+
 
     if(is.character(filename)){
-        saveXML(top, filename)
-        rt_value = TRUE
-    }else{
-        rt_value = saveXML(top)
+        message("Writing to file...")
+        write(rt_values, filename)
+        rt_values = TRUE
     }
-    return(rt_value)
+
+
+    return(rt_values)
 }
 
+makeSpeciesAtListOfVariables = function(species, distributions)
+{
+    xml_str = ""
+    if(is.data.frame(species)){
+        sps = colnames(species)
+        xml_str = paste("<Species id='", sps, "' error='", distributions, "' hasValue='True'/>", sep="", collapse="")
+    }
+    return(xml_str)
+}
+
+makeParametersAtListOfVariables  = function(parameters)
+{    
+    xml_str = ""
+    if(is.data.frame(parameters)){
+        pars = colnames(parameters)
+        xml_str = paste("<Parameter id='", pars, "'/>", sep="", collapse="")
+    }
+    return(xml_str)
+}
+
+pastePars = function(parameters)
+{
+    paste("<Parameter value='", parameters, "'/>", collapse="" ,sep="")
+}
+
+
+pasteSpecies = function(species)
+{
+    paste("<Species value='", species, "'>", collapse="" ,sep="")
+}
 
 fixParameters = function(parameters)
 {
@@ -94,68 +137,21 @@ fixErrors = function(errors)
     return(df_er)
 }
 
-makeDistributionParameters = function(id, seq)
-{
-    newXMLNode("Parameter", parent=seq, attrs=c(id=id))
-}
-
-makeDistributionSpecies = function(row, seq)
-{
-    if(is.na(row[[3]]))
-        newXMLNode("Species", parent=seq,attrs=c(id=row[[1]], error=row[[2]], hasValue='False'))
-    else
-        newXMLNode("Species", parent=seq,attrs=c(id=row[[1]], error=row[[2]], hasValue='True'))
-}
-
-makeparamnode = function(row, listofnodes)
-{
-    par = listofnodes[[as.numeric(row[1])]]
-    newXMLNode("Parameter", attrs=c(value=as.numeric(row[2])), parent=par)
-    return()
-}
-
-makespecnode = function(row, listofnodes, df_er)
-{
-    par = listofnodes[[as.numeric(row[1])]]
-    if(is.na(row[2]))
-    {
-        node = newXMLNode("Species", parent=par)
-    }else{
-        node = newXMLNode("Species", attrs=c(value=as.numeric(row[2])), parent=par)
-    }
-    errors = df_er[df_er$species == row[3] & df_er$iters == as.numeric(row[1]) ,]
-    if(dim(errors)[1] > 0){
-        seq=newXMLNode("sequence",parent=node)
-        apply(errors, 1, makeerrornode, seq)
-    }
-}
-
-
-makeerrornode = function(row, node)
-{
-    newXMLNode("Error",attrs=c(value=as.numeric(row[2])), parent=node)
-}
-    
-
-
 ############################################
 #Example usage
 ############################################
 
-#n=10
+#n=2
 #parameters=data.frame(mu=runif(n,0.01,0.1),alpha=runif(n,0.1,1))
 #species=data.frame(X=rnorm(n,50,1), Y=rnorm(n, 100, 10), Z=rnorm(n, 150, 10))
 #distributions = c('Gaussian', 'Gaussian', "Gaussian")
 #errors = data.frame(X.tau=rnorm(n,10), X.tau1=rnorm(n,10),Y.p2=rnorm(n, 100))
 #
+#makeDistribution1(stdout() , parameters, species, distributions, errors)
+#n=2
+#parameters=data.frame(mu=runif(n,0.01,0.1),alpha=runif(n,0.1,1))
+#species=data.frame(X=rnorm(n,50,1), Y=rnorm(n, 100, 10))
+#distributions = c('Gaussian', 'Gaussian')
+#errors = data.frame(X.tau=rnorm(n,10), X.tau1=rnorm(n,10),Y.p2=rnorm(n, 100))#
 #makeDistribution(stdout() , parameters, species, distributions, errors)
-
-
-
-
-
-
-
-
-
 

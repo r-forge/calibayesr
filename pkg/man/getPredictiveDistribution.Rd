@@ -7,7 +7,10 @@
 
 \title{Obtaining the predictive posterior distribution}
 
-\description{Once calibration has completed, the next natural step is to calulate the predictive posterior distribution. That is selecting parameter combinations at random from the posterior results and simulting forward.
+\description{Experimental. Still being tested.
+
+
+Once calibration has completed, the next natural step is to calulate the predictive posterior distribution. That is selecting parameter combinations at random from the posterior results and simulting forward.
 
 These web-services use the basisR functions \code{forwardSimulate}, \code{isForwardSimReady}, and \code{getForwardSimResult}. Currently, there is only one simulator available, the stochastic simulator \code{gillespie2}.
 }
@@ -23,9 +26,9 @@ These web-services use the basisR functions \code{forwardSimulate}, \code{isForw
     \item{asText}{logical value indicating that the first argument, \code{sbml}, should be treated as string to parse, and not the name of a file.}
     \item{max_time}{The model is simulated from time 0,...,\code{max_time}, i.e. the final simulation point.}
     \item{iters}{The level of thinning used when storing the output. For example if \code{max\_time}=100000 and \code{iters}=1000, then we store the outputted times t=0, 10, 20, ...., 100000}
-    \item{no_of_sims}{The number of parameter combinations that are simulated. Since BASIS use a stochastic simulator, this means that the simulation results for identical parameters will give different results.}
-    \item{prior}{A calibayes object, created by the \code{createCalibayes} or \code{loadCalibayes} or returned by the \code{calibrate} function. The prior is used to obtain values of the species initial conditions.}
-    \item{posterior}{A calibayes object, created by the \code{createCalibayes},\code{loadCalibayes} or returned by the \code{calibrate} function. The posteriro is used to obtain values of the parameters.}
+    \item{no_of_sims}{The number of parameter combinations that are simulated. Since BASIS uses a stochastic simulator, this means that the simulation results for identical parameters will give different results.}
+    \item{prior}{A calibayes object, created by the \code{createCaliBayesDistribution} or \code{loadCaliBayesDistribution} or returned by the \code{calibrate} function. The prior is used to obtain values of the species initial conditions.}
+    \item{posterior}{A calibayes object, created by the \code{createCaliBayesDistribution}, \code{loadCaliBayesDistribution} or returned by the \code{calibrate} function. The posteriro is used to obtain values of the parameters.}
     \item{results}{A calibayesPredictive object, created by \code{getPredictiveDistribution}.}
 
   
@@ -40,9 +43,9 @@ These web-services use the basisR functions \code{forwardSimulate}, \code{isForw
 \note{ 
 The \code{calibayesPredictive} object contains a number of attributes.
 
-\code{indx}: The row or index selected at random from the prior and posterior. The length of indx will equal \code{no_of_sims}
+\code{indx}: The row or index selected at random from the prior and posterior. The length of indx will equal \code{no_of_sims}.
 
-\code{sids}: A vector of sessions ids for the basis web-service;
+\code{sids}: A vector of sessions ids for the basis web-service.
 
 \code{isReady}: A vector of Boolean values. \code{TRUE} denotes that the data has been downloaded from the basis system.
 
@@ -52,7 +55,7 @@ The \code{calibayesPredictive} object contains a number of attributes.
 
 \author{Colin Gillespie}
 
-\seealso{See Also as \code{\link{createSettings}}.}
+\seealso{See also as \code{\link{createCaliBayesSettings}}.}
 \examples{
 \dontrun{
 library(SBMLModels)

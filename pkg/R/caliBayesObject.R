@@ -2,36 +2,35 @@
 #Private functions
 ################################################
 
-
-createCalibayesObject = function(iters, par_df, sp_df, dist, err_df, exp_df)
+pri_createCaliBayesDistribution = function(iters, parameters, species, distributions, errors)
 {
     y = list()
-    y$iters = iters    
-    y$parameters = par_df
-    y$species = sp_df
-    y$errors = err_df
-    y$dist = dist
-    y$experiments = exp_df
-    class(y) = "CaliBayes"
+    y$iters = iters
+    y$parameters = parameters
+    y$species = species
+    y$errors = errors
+    y$dist = distributions
+    class(y) = "CaliBayes.Distribution"
     return(y)
 }
+
  
     
-mean.CaliBayes = function(x,...)
+mean.CaliBayes.Distribution = function(x,...)
 {
     x = cbind(x$parameters,  x$species, x$errors)
     mean(x)
     
 }
 
-summary.CaliBayes = function(object,...)
+summary.CaliBayes.Distribution = function(object,...)
 {
     object = cbind(object$parameters, object$species, object$errors)
     summary(object)
 }
 
 
-plot.CaliBayes = function(x, lm=400, rows=4, burnin=1, thin=1, ...)
+plot.CaliBayes.Distribution = function(x, lm=400, rows=4, burnin=1, thin=1, ...)
 {	
     d = cbind(x$parameters, x$species, x$errors)
     names = attr(d, "names")
@@ -97,46 +96,63 @@ pri_compareDistributions = function(prior, posterior)
 #Public Calibayes functions
 ################################################
 
+createCaliBayesSettings = function(wsdl, burn=500, thin=50, block=1, simulator="copasi-deterministic", wsdl.simulator="internal", check=TRUE)
+{
+    if(check)
+        checkSettings(burn, thin, block)
+    
+    y = list()
+    y$burn = burn
+    y$thin = thin
+    y$block = block
+    y$simulator = simulator
+    y$wsdl.simulator = wsdl.simulator
+    class(y) = "CaliBayes.Settings"
+    return(y)
+}
 
-createCalibayes = function(parameters, species, distributions, errors, experiments)
+createCaliBayesExperiment = function(experiments, species, check=TRUE)
 {
     mf = match.call(expand.dots = FALSE)
-    m = match(c("parameters", "experiments"), names(mf), 0L)
+    m = match(c("species"), names(mf), 0L)
+    mf = mf[c(1L, m)]
+    if(!is.element("species",names(mf)))
+        species = FALSE
+
+
+    if(is.data.frame(experiments)){
+        experiments = list(experiments)
+    }
+    
+    if(check)
+        checkExperiments(experiments, species)
+      
+    y = experiments
+    class(y) = "CaliBayes.Experiment"
+    return(y)
+}
+ 
+createCaliBayesDistribution = function(parameters, species, distributions, errors, check=TRUE)
+{
+    mf = match.call(expand.dots = FALSE)
+    m = match(c("parameters"), names(mf), 0L)
     mf = mf[c(1L, m)]
     if(!is.element("parameters",names(mf)))
         parameters = FALSE
 
-    if(is.element("experiments",names(mf))){
-        if(is.data.frame(experiments)){
-            experiments = list(experiments)
-        }
-        checkExperiments(experiments, species)
-    }else{
-        experiments = NULL
-    }    
-    checkDistribution(parameters, species, distributions, errors)
-    y = createCalibayesObject(seq(0, (dim(species)[1]-1)), parameters, species, distributions, errors, experiments)
+    if(check)
+        checkDistribution(parameters, species, distributions, errors)
+        
+    iters = seq(0, (dim(species)[1]-1))
+    y = pri_createCaliBayesDistribution(iters, parameters, species, distributions, errors)
+    
     return(y)
+
 }
 
-saveCalibayes = function(filename, calibayes)
-{
-    data = calibayes     
-    if(is.data.frame(data$species))
-    {
-        dis_filename = paste(filename, '_distributions.xml', sep='')
-        makeDistribution(dis_filename, data$parameters, data$species, data$dist, data$errors, FALSE)
-    }
-    if(is.list(data$experiments))
-    {
-        exp_filename = paste(filename, '_experiments.xml', sep='')
-        makeExperiments(exp_filename, data$experiments, check=FALSE)
-    }
-  
-    return(TRUE)
-}
 
-loadCalibayes = function(filename)
+
+loadCaliBayesDistribution = function(filename)
 {
     calibayes = getDistribution(filename, asText=FALSE)
     return(calibayes)
@@ -158,26 +174,33 @@ compareDistributions = function(prior, posterior)
 
 
 ############################################################################################################
-#Public Settings functions
+#Public Save Functions
 ############################################################################################################
-createSettings = function(wsdl, burn=500, thin=50, block=1, simulator="copasi-deterministic", wsdl.simulator="internal")
+
+
+saveCaliBayesExperiment = function(filename, CaliBayes.Experiment)
 {
-    checkSettings(burn, thin, block)
-    
-    y = list()
-    y$burn = burn
-    y$thin = thin
-    y$block = block
-    y$simulator = simulator
-    y$wsdl.simulator = wsdl.simulator
-    class(y) = "settings"
-    return(y)
+    makeExperiments(filename, CaliBayes.Experiment)       
+    return(TRUE)
 }
 
-saveSettings = function(filename, settings)
+saveCaliBayesDistribution = function(filename, CaliBayes.Distribution)
 {
+    data = CaliBayes.Distribution     
+    if(is.data.frame(data$species))
+    {
+        makeDistribution(filename, data$parameters, data$species, data$dist, data$errors, FALSE)
+    }
+  
+    return(TRUE)
+}
+
+saveCaliBayesSettings = function(filename, CaliBayes.Settings)
+{
+    settings = CaliBayes.Settings
     makeSettings(filename, settings$burn, settings$thin, settings$block, 
                     settings$simulator, settings$wsdl, FALSE)
+    return(TRUE)
 }
     
 

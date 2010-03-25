@@ -7,7 +7,7 @@ checkSettings = function(burn, thin, block)
     checkThin(thin)
     checkBlock(block)
     simulator = 'XXX'
-    checkSimulator(simulator)
+#    checkSimulator(simulator)
     
     message("All tests passed")
     return(TRUE)
