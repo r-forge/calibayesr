@@ -4,7 +4,7 @@ library(SBMLModels)
 data(LogisticModel)
 
 #Which simulators are available
-wsdl = "http://calibayes1.ncl.ac.uk:81/CaliBayesService_v2.wsdl"
+wsdl = "http://calibayes2.ncl.ac.uk:81/CaliBayesService_v2.wsdl"
 listSimulatorMethods(wsdl)
 
 #Create settings file
